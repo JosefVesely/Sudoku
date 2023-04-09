@@ -1,9 +1,12 @@
 import pygame as pg
 from pygame import gfxdraw
+import tkinter as tk
+from tkinter import messagebox
 
 pg.init()
 pg.display.set_caption("Sudoku")
 pg.display.set_icon(pg.image.load("icon.png"))
+tk.Tk().wm_withdraw()
 
 # Constants
 COLS, ROWS = 9, 9
@@ -28,15 +31,15 @@ screen = pg.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 clock = pg.time.Clock()
 
 grid = [
-    [ 4, 0, 5, 7, 0, 0, 0, 0, 6 ],
-    [ 0, 0, 0, 0, 0, 2, 0, 9, 0 ],
-    [ 8, 9, 0, 0, 0, 0, 0, 3, 7 ],
-    [ 1, 3, 4, 8, 9, 0, 6, 7, 0 ],
-    [ 9, 6, 0, 2, 7, 4, 5, 1, 0 ],
-    [ 0, 0, 0, 0, 0, 3, 8, 4, 0 ],
-    [ 3, 0, 9, 0, 2, 6, 0, 0, 0 ],
-    [ 0, 5, 0, 0, 0, 0, 0, 0, 4 ],
-    [ 0, 0, 0, 9, 5, 0, 0, 6, 0 ]
+    [ 4, 2, 5, 7, 3, 9, 1, 8, 6 ],
+    [ 7, 1, 3, 6, 8, 2, 4, 9, 5 ],
+    [ 8, 9, 6, 5, 4, 1, 2, 3, 7 ],
+    [ 1, 3, 4, 8, 9, 5, 6, 7, 2 ],
+    [ 9, 6, 8, 2, 7, 4, 5, 1, 3 ],
+    [ 5, 7, 2, 1, 6, 3, 8, 4, 9 ],
+    [ 3, 8, 9, 4, 2, 6, 0, 5, 1 ],
+    [ 6, 5, 7, 3, 1, 8, 9, 2, 4 ],
+    [ 2, 4, 1, 9, 5, 7, 3, 6, 8 ]
 ]
 
 grid_solved = [
@@ -55,7 +58,8 @@ grid_initial = list(map(list, grid))
 
 selected_num = 0
 selected_square = None
-
+mistakes = 0
+time = 0 # seconds
 
 def get_square():
     mouse_x, mouse_y = pg.mouse.get_pos()
@@ -170,10 +174,32 @@ def draw_sidebar(screen) -> None:
     top = GRID_MARGIN - 2
 
     # Title
-    font = pg.font.Font(pg.font.match_font("malgungothicsemilight"), 50)
-    text = font.render("Sudoku", True, Color.BLACK)
-                
+    font_large = pg.font.Font(pg.font.match_font("malgungothicsemilight"), 50)
+    font_small = pg.font.Font(pg.font.match_font("malgungothicsemilight"), 30)
+
+    text = font_large.render("Sudoku", True, Color.BLACK)
     screen.blit(text, (left, top))
+
+    # Mistakes
+    top += SQUARE_SIZE*1.2
+
+    timer = f"{time//60:0>2}:{time%60:0>2}"
+    text = font_large.render(timer, True, Color.BLACK)
+    screen.blit(text, (left, top))
+
+    # Time
+    top += SQUARE_SIZE*1.2
+    text = font_small.render(f"Mistakes: {mistakes}", True, Color.BLACK)
+    screen.blit(text, (left, top))
+
+
+def check_gameover():
+    if grid == grid_solved:
+        tk.messagebox.showinfo("Sudoku", f"You won!\nTime: {time//60:0>2}:{time%60:0>2}\nMistakes: {mistakes}")
+        exit()
+
+
+pg.time.set_timer(pg.USEREVENT, 1000)
 
 # Game loop
 while True:
@@ -184,6 +210,9 @@ while True:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             exit()
+        
+        if event.type == pg.USEREVENT:
+            time += 1
 
         if event.type == pg.KEYDOWN:
             if event.key in KEY_DIGITS and selected_square:
@@ -197,6 +226,8 @@ while True:
                     else:
                         grid[y][x] = num
                         selected_num = num
+                        if num != grid_solved[y][x] and num != 0:
+                            mistakes += 1
 
             if event.key == pg.K_ESCAPE:
                 selected_square = None
@@ -208,6 +239,9 @@ while True:
                     x, y = get_square()
                     selected_num = grid[y][x]
                     selected_square = (x, y)
+
+    # UPDATE
+    check_gameover()
 
     # RENDER
     draw_grid(screen, grid)
