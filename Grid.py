@@ -78,10 +78,11 @@ class Grid:
                             self.highlighted_num = num
 
                 if event.key in [pg.K_0, pg.K_KP0, pg.K_BACKSPACE, pg.K_DELETE]:
-                    x, y = self.selected_square
+                    if self.selected_square:
+                        x, y = self.selected_square
 
-                    if self.grid_initial[y][x] == 0:
-                        self.grid[y][x] = 0
+                        if self.grid_initial[y][x] == 0:
+                            self.grid[y][x] = 0
 
                 if event.key == pg.K_ESCAPE:
                     self.highlighted_num = 0
