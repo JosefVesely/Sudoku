@@ -1,0 +1,10 @@
+class Color:
+    BLACK       = (0, 0, 0)
+    WHITE       = (255, 255, 255)
+    RED         = (255, 77, 77)
+    GREEN       = (179, 255, 179)
+    BLUE        = (128, 193, 255)
+    LIGHTERBLUE = (204, 230, 255)
+    LIGHTBLUE   = (153, 204, 255)
+    GRAY        = (60, 60, 60)
+    LIGHTGRAY   = (100, 100, 100)
